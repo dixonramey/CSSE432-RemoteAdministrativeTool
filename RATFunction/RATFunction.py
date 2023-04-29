@@ -9,7 +9,7 @@ class Side:
 class RATFunction(ABC):
 
     def __init__(self, side, packet_queue):
-        self.enabled = False
+        self.enabled = True
         self.side = side
         self.packet_queue = packet_queue
 

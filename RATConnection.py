@@ -40,4 +40,4 @@ class RATServer(RATConnection):
     def listen(self, port):
         self.socket.bind(("localhost", port))
         self.socket.listen(1)
-        self.client_socket, self.client_address = self.socket.accept()
+        self.socket, self.client_address = self.socket.accept()
