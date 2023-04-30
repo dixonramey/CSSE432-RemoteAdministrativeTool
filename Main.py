@@ -1,21 +1,21 @@
 import threading
 import time
 
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, QSystemTrayIcon, QMenu, QAction, \
-    QMessageBox
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, \
+    QDialog, QLineEdit
 import sys
 
 from AdministratorControlPanel import AdministratorControlPanel
-from RATConnection import RATClient, RATServer
 from RATFunction.Echo import Echo
-from RATFunction.RATFunction import Side
-from RATFunction.RATFunctionRegistry import RATFunctionRegistry
+from RemoteSystemMode import RemoteSystemMode
 
 function_classes = [Echo]
+
 
 class SystemSelectionDialog(QWidget):
     def __init__(self):
         super().__init__()
+        self.widget = None
 
         # create a vertical layout for the dialog
         self.layout = QVBoxLayout()
@@ -42,35 +42,43 @@ class SystemSelectionDialog(QWidget):
 
     def select_administrator(self):
         print("User selected: Administrator")
+        self.hide()
         self.widget = AdministratorControlPanel(function_classes)
         self.widget.show()
+
         # self.close()
 
     def select_remote_system(self):
 
-        self.remote_button.hide()
-        self.admin_button.hide()
-        self.label.setText("Running as Remote System")
-        self.repaint()
-        threading.Thread(target=self.run_remote_system, daemon=True).start()
+        # Create a dialog to get user input
+        dialog = QDialog(self)
+        dialog.setWindowTitle('Password')
 
-    def run_remote_system(self):
-        server = RATServer()
-        server.listen(8888)
+        # Create a label and text input field in the dialog
+        label = QLabel('Set your client password:', dialog)
+        input_field = QLineEdit(dialog)
 
-        registry = RATFunctionRegistry()
-        for function_class in function_classes:
-            registry.add_function(function_class(Side.REMOTE_SIDE, server.packet_queue))
+        # Layout the label and text input field in the dialog
+        layout = QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(input_field)
+        dialog.setLayout(layout)
 
-        server.packet_callback = registry.route_packet
+        # Add OK and Cancel buttons to the dialog
+        ok_button = QPushButton('OK', dialog)
+        ok_button.clicked.connect(dialog.accept)
+        cancel_button = QPushButton('Cancel', dialog)
+        cancel_button.clicked.connect(dialog.reject)
+        layout.addWidget(ok_button)
+        layout.addWidget(cancel_button)
 
-        server.listen_for_packets()
+        # Display the dialog and wait for user input
+        if dialog.exec_() == QDialog.Rejected:
+            return
 
-
-
-
-
-
+        self.widget = RemoteSystemMode(function_classes, input_field.text())
+        self.widget.show()
+        self.hide()
 
 
 if __name__ == "__main__":
