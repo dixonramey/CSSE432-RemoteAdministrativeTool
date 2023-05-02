@@ -1,0 +1,1 @@
+PACKET_SIZE = 2048
