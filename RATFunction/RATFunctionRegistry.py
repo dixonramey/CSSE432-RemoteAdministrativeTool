@@ -1,4 +1,6 @@
 import struct
+import sys
+import traceback
 
 from RATFunction import RATFunction
 
@@ -14,9 +16,10 @@ class RATFunctionRegistry(object):
         packet_id, _ = struct.unpack("I 2044s", data)
         if packet_id in self.functions:
             function = self.functions[packet_id]
-            if function.enabled:
+            try:
                 function.handle_packet_data(data)
+            except:
+                traceback.print_exc(file=sys.stderr)
 
     def get_function(self, identifier):
         return self.functions[identifier]
-

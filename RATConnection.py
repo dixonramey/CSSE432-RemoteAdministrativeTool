@@ -2,6 +2,7 @@ import queue
 import socket
 from threading import Thread
 from abc import ABC
+from Constants import PACKET_SIZE
 
 
 class RATConnection(ABC):
@@ -17,17 +18,20 @@ class RATConnection(ABC):
     def _packet_loop(self):
         while True:
             buffer = self.packet_queue.get()
-            self.get_sock().send(buffer)
+            try:
+                self.get_sock().send(buffer)
+            except:
+                pass
 
     def _listen_for_packets(self):
         while True:
             try:
-                data = self.get_sock().recv(2048)
+                data = self.get_sock().recv(PACKET_SIZE)
             except:
                 # Client disconnected, break out of loop
                 break
 
-            if data and len(data) == 2048:
+            if data and len(data) == PACKET_SIZE:
                 self.packet_callback(data)
 
             if not data:

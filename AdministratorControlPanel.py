@@ -3,12 +3,13 @@ import socket
 import struct
 
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import QLabel, QWidget, QPushButton, QDialog, QVBoxLayout, QLineEdit
+from PyQt5.QtWidgets import QLabel, QWidget, QPushButton, QDialog, QVBoxLayout, QLineEdit, QHBoxLayout
 
 from RATConnection import RATClient
 from RATFunction.EchoUI import EchoUI
 from RATFunction.RATFunction import Side
 from RATFunction.RATFunctionRegistry import RATFunctionRegistry
+from RATFunction.RemoteDesktopUI import RemoteDesktopUI
 
 
 class AdminNetworkThread(QThread):
@@ -38,18 +39,26 @@ class AdministratorControlPanel(QWidget):
 
     def __init__(self, function_classes):
         super().__init__()
+        self.setup_ui()
         self.client = RATClient()
         self.registry = RATFunctionRegistry()
 
         for function_class in function_classes:
             self.registry.add_function(function_class(Side.ADMIN_SIDE, self.client.packet_queue))
 
-        self.setWindowTitle('Administrator Control Panel')
-        self.setGeometry(100, 100, 400, 300)
-
         self.setup_echo()
+        self.setup_remote_desktop()
 
         self.reconnect()
+
+    def setup_ui(self):
+        self.setWindowTitle('Administrator Control Panel')
+        self.setGeometry(100, 100, 400, 150)
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+    def add_button(self, button):
+        self.layout.addWidget(button)
 
     def setup_network_thread(self, host, port):
         # create a network thread and start it
@@ -97,10 +106,15 @@ class AdministratorControlPanel(QWidget):
 
     def setup_echo(self):
         self.echo_button = QPushButton('Echo', self)
-        self.echo_button.move(100, 100)
-        self.echo_button.resize(200, 30)
         self.echo_ui = EchoUI(self.registry.get_function(1))
         self.echo_button.clicked.connect(self.echo_ui.show)
+        self.add_button(self.echo_button)
+
+    def setup_remote_desktop(self):
+        self.remote_desktop_button = QPushButton('Remote Desktop', self)
+        self.remote_desktop_ui = RemoteDesktopUI(self.registry.get_function(2))
+        self.remote_desktop_button.clicked.connect(self.remote_desktop_ui.show)
+        self.add_button(self.remote_desktop_button)
 
     def gui_handle_packet(self, data):
         self.registry.route_packet(data)

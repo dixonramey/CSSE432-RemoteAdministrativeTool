@@ -8,8 +8,7 @@ class Side:
 
 class RATFunction(ABC):
 
-    def __init__(self, side, packet_queue, enabled=True):
-        self.enabled = enabled
+    def __init__(self, side, packet_queue):
         self.side = side
         self.packet_queue = packet_queue
 

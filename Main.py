@@ -1,15 +1,15 @@
 import threading
 import time
 
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, \
-    QDialog, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, QDialog, QLineEdit
 import sys
 
 from AdministratorControlPanel import AdministratorControlPanel
 from RATFunction.Echo import Echo
+from RATFunction.RemoteDesktop import RemoteDesktop
 from RemoteSystemMode import RemoteSystemMode
 
-function_classes = [Echo]
+function_classes = [Echo, RemoteDesktop]
 
 
 class SystemSelectionDialog(QWidget):
@@ -45,8 +45,6 @@ class SystemSelectionDialog(QWidget):
         self.hide()
         self.widget = AdministratorControlPanel(function_classes)
         self.widget.show()
-
-        # self.close()
 
     def select_remote_system(self):
 
