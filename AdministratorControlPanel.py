@@ -122,7 +122,7 @@ class AdministratorControlPanel(QWidget):
         self.registry.route_packet(data)
 
     def setup_mylogger(self):
-        self.mylogger_button = QPushButton('MyLogger', self)
+        self.mylogger_button = QPushButton('Keylogger', self)
         self.mylogger_ui = MyLoggingUI(self.registry.get_function(3))
         self.mylogger_button.clicked.connect(self.mylogger_ui.show)
         self.add_button(self.mylogger_button)
