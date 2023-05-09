@@ -1,7 +1,3 @@
-import io
-
-from PIL import Image
-from PIL.ImageQt import ImageQt
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QPushButton
