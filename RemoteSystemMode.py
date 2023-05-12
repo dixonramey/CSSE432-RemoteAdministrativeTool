@@ -10,11 +10,12 @@ from RATFunction.RATFunctionRegistry import RATFunctionRegistry
 
 
 class RemoteSystemMode(QWidget):
-    def __init__(self, function_classes, password):
+    def __init__(self, function_classes, password, port):
         super().__init__()
         self.server = RATServer()
         self.registry = RATFunctionRegistry()
         self.password = password
+        self.port = port
         self.admin_authorized = False
 
         for function_class in function_classes:
@@ -39,10 +40,10 @@ class RemoteSystemMode(QWidget):
         self.setWindowTitle("RAT")
         self.setFixedSize(300, 150)
 
-    def _start_server(self, port=8888):
+    def _start_server(self):
         self.server.packet_callback = self.handle_packet
         self.server.client_disconnected_callback = self.client_disconnected
-        self.server.listen(port)
+        self.server.listen(self.port)
 
     def client_disconnected(self):
         self.admin_authorized = False
