@@ -4,6 +4,7 @@ import threading
 
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel
 
+from Constants import PACKET_SIZE
 from RATConnection import RATServer
 from RATFunction.RATFunction import Side
 from RATFunction.RATFunctionRegistry import RATFunctionRegistry
@@ -49,7 +50,7 @@ class RemoteSystemMode(QWidget):
         self.admin_authorized = False
 
     def handle_packet(self, data):
-        packet_id, b = struct.unpack("I 2044s", data)
+        packet_id, b = struct.unpack(f"I {PACKET_SIZE - 4}s", data)
 
         if self.admin_authorized:
             self.registry.route_packet(data)

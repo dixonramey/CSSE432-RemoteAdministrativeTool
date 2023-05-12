@@ -7,6 +7,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QLabel, QWidget, QPushButton, QDialog, QVBoxLayout, QLineEdit, QHBoxLayout
 
+from Constants import PACKET_SIZE
 from RATConnection import RATClient
 from RATFunction.MessageUI import MessageUI
 from RATFunction.RATFunction import Side
@@ -130,7 +131,7 @@ class AdministratorControlPanel(QWidget):
     def send_password(self):
         hash_object = hashlib.sha256()
         hash_object.update(self.password.encode())
-        self.client.send_packet(struct.pack("I 2044s", 0, hash_object.digest()))
+        self.client.send_packet(struct.pack(f"I {PACKET_SIZE - 4}s", 0, hash_object.digest()))
 
     def gui_handle_packet(self, data):
         self.registry.route_packet(data)

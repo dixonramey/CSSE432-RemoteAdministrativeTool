@@ -2,6 +2,7 @@ import struct
 import sys
 import traceback
 
+from Constants import PACKET_SIZE
 from RATFunction import RATFunction
 
 
@@ -13,7 +14,7 @@ class RATFunctionRegistry(object):
         self.functions[function.identifier()] = function
 
     def route_packet(self, data):
-        packet_id, _ = struct.unpack("I 2044s", data)
+        packet_id, _ = struct.unpack(f"I {PACKET_SIZE - 4}s", data)
         if packet_id in self.functions:
             function = self.functions[packet_id]
             try:
