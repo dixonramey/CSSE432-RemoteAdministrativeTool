@@ -24,6 +24,8 @@ class RATConnection(ABC):
                 pass
 
     def _listen_for_packets(self):
+        buffer = bytearray()
+
         while True:
             try:
                 data = self.get_sock().recv(PACKET_SIZE)
@@ -31,11 +33,13 @@ class RATConnection(ABC):
                 # Client disconnected, break out of loop
                 break
 
-            if data and len(data) == PACKET_SIZE:
-                self.packet_callback(data)
+            if data:
+                buffer.extend(data)
 
-            if not data:
-                return
+                while len(buffer) >= PACKET_SIZE:
+                    chunk = bytes(buffer[:PACKET_SIZE])
+                    buffer = buffer[PACKET_SIZE:]
+                    self.packet_callback(chunk)
 
     def get_sock(self):
         return self.socket
@@ -61,7 +65,7 @@ class RATServer(RATConnection):
         self.client_disconnected_callback = lambda: ()
 
     def listen(self, port):
-        self.socket.bind(("localhost", port))
+        self.socket.bind(('0.0.0.0', port))
 
         while True:
             # Start listening for incoming connections

