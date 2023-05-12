@@ -1,18 +1,18 @@
-import threading
-import time
+from PyQt5 import sip
 
+from PyQt5.QtGui import QIntValidator
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, QDialog, QLineEdit
 import sys
 
 from AdministratorControlPanel import AdministratorControlPanel
-from RATFunction.Echo import Echo
+from RATFunction.Message import Message
 from RATFunction.RemoteCamera import RemoteCamera
 from RATFunction.RemoteDesktop import RemoteDesktop
 from RATFunction.MyLogging import MyLogging
 
 from RemoteSystemMode import RemoteSystemMode
 
-function_classes = [Echo, RemoteDesktop, MyLogging, RemoteCamera]
+function_classes = [Message, RemoteDesktop, MyLogging, RemoteCamera]
 
 
 class SystemSelectionDialog(QWidget):
@@ -58,11 +58,17 @@ class SystemSelectionDialog(QWidget):
         # Create a label and text input field in the dialog
         label = QLabel('Set your client password:', dialog)
         input_field = QLineEdit(dialog)
+        port_label = QLabel('Port:', dialog)
+        port_input_field = QLineEdit(dialog)
+        port_input_field.setText('8888')
+        port_input_field.setValidator(QIntValidator())
 
         # Layout the label and text input field in the dialog
         layout = QVBoxLayout()
         layout.addWidget(label)
         layout.addWidget(input_field)
+        layout.addWidget(port_label)
+        layout.addWidget(port_input_field)
         dialog.setLayout(layout)
 
         # Add OK and Cancel buttons to the dialog
@@ -77,7 +83,9 @@ class SystemSelectionDialog(QWidget):
         if dialog.exec_() == QDialog.Rejected:
             return
 
-        self.widget = RemoteSystemMode(function_classes, input_field.text())
+        password = input_field.text()
+        port = int(port_input_field.text())
+        self.widget = RemoteSystemMode(function_classes, password, port)
         self.widget.show()
         self.hide()
 

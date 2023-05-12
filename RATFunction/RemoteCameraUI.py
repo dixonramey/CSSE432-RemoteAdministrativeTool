@@ -40,8 +40,7 @@ class RemoteCameraUI(RATFunctionUI):
         event.accept()
 
     def received_image_callback(self, image_bytes):
-        with io.BytesIO(image_bytes) as bytesio:
-            image = Image.open(bytesio)
+        image = Image.open(io.BytesIO(image_bytes))
         width, height = image.size
 
         QPixmap.loadFromData(self.pixmap, image_bytes, format='JPEG')
