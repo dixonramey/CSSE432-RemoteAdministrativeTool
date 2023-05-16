@@ -1,7 +1,8 @@
 import os
 
 import pyautogui
-from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QLabel, QWidget, QFileDialog, QLineEdit
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QLabel, QWidget, QFileDialog, QLineEdit, QHBoxLayout
 
 from RATFunction.FileTransfer import FileTransfer
 from RATFunction.RATFunctionUI import RATFunctionUI
@@ -10,33 +11,26 @@ from RATFunction.RATFunctionUI import RATFunctionUI
 class FileTransferUI(RATFunctionUI):
     def __init__(self, function: FileTransfer, *args, **kwargs):
         super().__init__(function, *args, **kwargs)
+        self.file_transfer_function = function
+        self.file_transfer_function.message_received_callback = self.message_received_callback
 
-        # create a vertical layout for the dialog
-        self.layout = QVBoxLayout()
+        self.setWindowTitle('File Transfer')
 
-        # add two buttons to the layout
-        self.admin_button = QPushButton("Send File")
-        self.admin_button.clicked.connect(self.send_file)
-        self.layout.addWidget(self.admin_button)
+        file_send_dialog = FileSendDialog(self.file_transfer_function)
+        file_receive_dialog = FileReceiveDialog(self.file_transfer_function)
 
-        self.remote_button = QPushButton("Retrieve File")
-        self.remote_button.clicked.connect(self.retrieve_file)
-        self.layout.addWidget(self.remote_button)
+        layout = QHBoxLayout()
+        layout.addWidget(file_send_dialog)
+        layout.addWidget(file_receive_dialog)
 
-        # set the layout for the dialog
-        self.setLayout(self.layout)
+        self.setLayout(layout)
 
         # set the window title and size
         self.setWindowTitle("File Transfer")
-        self.setFixedSize(300, 150)
+        self.setMinimumSize(600, 200)
 
-    def send_file(self):
-        self.bruh = FileSendDialog(self.function)
-        self.bruh.show()
-
-    def retrieve_file(self):
-        self.bruh2 = FileReceiveDialog(self.function)
-        self.bruh2.show()
+    def message_received_callback(self, message: str):
+        pyautogui.alert(message, 'Info from remote system')
 
 
 class FileSendDialog(QWidget):
@@ -46,11 +40,10 @@ class FileSendDialog(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle('File Send Dialog')
-        self.setGeometry(100, 100, 400, 150)
-        self.move(700, 400)
 
         self.file_path_label = QLabel('No file selected')
+        self.file_path_label.setWordWrap(True)
+        self.file_path_label.setMinimumHeight(40)
         self.file_path_button = QPushButton('Select File')
         self.file_path_button.clicked.connect(self.openFileDialog)
 
@@ -60,7 +53,14 @@ class FileSendDialog(QWidget):
         self.send_button = QPushButton('Send')
         self.send_button.clicked.connect(self.sendFile)
 
+        myFont = QtGui.QFont()
+        myFont.setPointSize(10)
+        myFont.setBold(True)
+        self.title = QLabel('Send')
+        self.title.setFont(myFont)
+
         layout = QVBoxLayout()
+        layout.addWidget(self.title)
         layout.addWidget(self.file_path_label)
         layout.addWidget(self.file_path_button)
         layout.addWidget(self.dir_path_lineedit)
@@ -89,6 +89,7 @@ class FileSendDialog(QWidget):
         else:
             pyautogui.alert('Please select a file')
 
+
 class FileReceiveDialog(QWidget):
     def __init__(self, function: FileTransfer):
         super().__init__()
@@ -97,11 +98,10 @@ class FileReceiveDialog(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle('File Receive Dialog')
-        self.setGeometry(100, 100, 400, 150)
-        self.move(700, 400)
 
         self.dir_path_label = QLabel('No directory selected')
+        self.dir_path_label.setWordWrap(True)
+        self.dir_path_label.setMinimumHeight(40)
         self.dir_path_button = QPushButton('Select Directory')
         self.dir_path_button.clicked.connect(self.openDirectoryDialog)
 
@@ -111,7 +111,14 @@ class FileReceiveDialog(QWidget):
         self.receive_button = QPushButton('Retrieve')
         self.receive_button.clicked.connect(self.receiveFile)
 
+        myFont = QtGui.QFont()
+        myFont.setPointSize(10)
+        myFont.setBold(True)
+        self.title = QLabel('Retrieve')
+        self.title.setFont(myFont)
+
         layout = QVBoxLayout()
+        layout.addWidget(self.title)
         layout.addWidget(self.dir_path_label)
         layout.addWidget(self.dir_path_button)
         layout.addWidget(self.file_path_lineedit)
@@ -127,7 +134,6 @@ class FileReceiveDialog(QWidget):
             self.dir_path_label.setText(dir_path)
 
     def receiveFile(self):
-        # Implement your logic here to receive the file from the remote system and save it to the specified directory
         if hasattr(self, 'dir_path'):
             dir_path = self.dir_path
             file_path = self.file_path_lineedit.text()
@@ -144,3 +150,5 @@ class FileReceiveDialog(QWidget):
         full_path = os.path.join(self.dir_path, os.path.basename(self.file_path_lineedit.text()))
         with open(full_path, 'wb') as file:
             file.write(file_bytes)
+        pyautogui.alert(f'Wrote retrieved file to {full_path}')
+

