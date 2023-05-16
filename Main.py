@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushBut
 import sys
 
 from AdministratorControlPanel import AdministratorControlPanel
+from RATFunction.FileTransfer import FileTransfer
 from RATFunction.Message import Message
 from RATFunction.RemoteCamera import RemoteCamera
 from RATFunction.RemoteDesktop import RemoteDesktop
@@ -12,7 +13,7 @@ from RATFunction.MyLogging import MyLogging
 
 from RemoteSystemMode import RemoteSystemMode
 
-function_classes = [Message, RemoteDesktop, MyLogging, RemoteCamera]
+function_classes = [Message, RemoteDesktop, MyLogging, RemoteCamera, FileTransfer]
 
 
 class SystemSelectionDialog(QWidget):
